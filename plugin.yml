@@ -1,0 +1,8 @@
+name: ConnectFour
+version: 0.0
+main: wut.cholo71796.ConnectFour.ConnectFour
+description: Play Connect Four in Minecraft!
+author: cholo71796
+commands:
+   connectfour:
+       aliases: [cf, c4]
