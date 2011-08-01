@@ -46,9 +46,9 @@ public class ConnectFourGame {
     private void startGame() {
         chest = new VirtualDoubleChest("Connect Four");
         inventory = chest.getLc();
-        chest.showToPlayers(playerOne, playerTwo);
         ConnectFour.games.put(playerOne, this);
         ConnectFour.games.put(playerTwo, this);
+        chest.showToPlayers(playerOne, playerTwo);
     }
     
     public void nextTurn(int slot) {
@@ -156,15 +156,17 @@ public class ConnectFourGame {
                 winningSlots.add(slot - 24 + (i * 8));
             }
         }
-        if (!winningSlots.isEmpty())
+        if (!winningSlots.isEmpty()) {
+            winnerCoin = coin;
             return true;
+        }
         return false;
     }
     
     public void win() {
         if (winner == playerOne)
             winnerCoin = redCoin;
-        else
+        else if (winner == playerTwo)
             winnerCoin = yellowCoin;
 //        fancy border change
 //        for (int i = 0 ; i <= 45; i += 9)

@@ -38,13 +38,11 @@ public class IListener extends InventoryListener {
         int slot = event.getSlot();
         if (slot == -999)
             return;
-        if (event.isShiftClick()) {
+        if (event.isShiftClick())
             return;
-        }
         game = ConnectFour.games.get(player);
-        if (game.isWon()) {
+        if (game.isWon())
             return;
-        }
         if (game.isPlayersTurn(player)) {
             if (inventory.getName().equals("Connect Four")) {
                 int i = slot % 9 + 45;

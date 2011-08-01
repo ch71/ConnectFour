@@ -9,6 +9,8 @@ import java.io.OutputStream;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+import org.bukkit.ChatColor;
+import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event.Priority;
 import org.bukkit.event.Event.Type;
@@ -34,7 +36,12 @@ public class ConnectFour extends JavaPlugin {
     private static PluginDescriptionFile pdfFile;
     
     @Override
-    public void onDisable() {}
+    public void onDisable() {
+        for (Player player : games.keySet()) {
+            ((CraftPlayer) player).getHandle().y();
+            player.sendMessage(ChatColor.GOLD + "Game closed due to server restart.");
+        }
+    }
     
     @Override
     public void onEnable() {

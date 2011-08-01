@@ -44,7 +44,7 @@ public class ConnectFourCommand implements CommandExecutor {
                             @Override
                             public void run(){
                                 new ConnectFourGame(requestSender, requestRecipient);
-                            }}, 20L);                        
+                            }}, 15L);                        
                         return true; //only one entry, don't waste checks
                     }
                 }               
