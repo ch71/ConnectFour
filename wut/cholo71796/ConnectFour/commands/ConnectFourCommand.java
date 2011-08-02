@@ -30,7 +30,7 @@ public class ConnectFourCommand implements CommandExecutor {
         }
         
         if (args.length == 1) {
-            if (args[0].equalsIgnoreCase("accept")) {
+            if (args[0].equalsIgnoreCase("accept")) {                
                 for (Entry entry : ConnectFour.requests.entrySet()) {
                     if (entry.getValue().equals(player)) {
                         final Player requestSender = (Player) entry.getKey();
@@ -44,10 +44,10 @@ public class ConnectFourCommand implements CommandExecutor {
                             @Override
                             public void run(){
                                 new ConnectFourGame(requestSender, requestRecipient);
-                            }}, 15L);                        
+                            }}, 15L);
                         return true; //only one entry, don't waste checks
                     }
-                }               
+                }
                 player.sendMessage(ChatColor.GOLD + "No request detected.");
             } else if (args[0].equalsIgnoreCase("reject")) {
                 for (Entry entry : ConnectFour.requests.entrySet()) {
@@ -65,6 +65,12 @@ public class ConnectFourCommand implements CommandExecutor {
                 Player playerTwo = ConnectFour.plugin.getServer().getPlayer(args[0]);
                 if (playerTwo == null) {
                     player.sendMessage(args[0] + ChatColor.GOLD + " is not a valid argument.");
+                    return false;
+                } if (!ConnectFour.permissionHandler.has(player, "connectfour.start") || !ConnectFour.permissionHandler.has(player, "connectfour.play")) {
+                    player.sendMessage(ChatColor.GOLD + "Sorry, you don't have permission to start " + ChatColor.WHITE + "Connect Four" + ChatColor.GOLD + " games.");
+                    return false;
+                } if (!ConnectFour.permissionHandler.has(playerTwo, "connectfour.play")) {
+                    player.sendMessage(playerTwo.getName() + ChatColor.GOLD + " doesn't have permission to play "  + ChatColor.WHITE + "Connect Four.");
                     return false;
                 } if (playerTwo.equals(player)) {
                     player.sendMessage(ChatColor.GOLD + "You can't play against yourself!");

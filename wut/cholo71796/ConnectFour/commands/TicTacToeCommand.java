@@ -9,7 +9,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import wut.cholo71796.ConnectFour.ConnectFour;
 import wut.cholo71796.ConnectFour.variables.TicTacToeGame;
-public class TicTacToeCommand implements CommandExecutor {    
+public class TicTacToeCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if (!(sender instanceof Player))
@@ -19,7 +19,7 @@ public class TicTacToeCommand implements CommandExecutor {
         if (args.length == 0) {
             return false;
         }
-                
+        
         if (args.length == 1) {
             if (args[0].equalsIgnoreCase("accept")) {
                 for (Entry entry : ConnectFour.requests.entrySet()) {
@@ -35,10 +35,10 @@ public class TicTacToeCommand implements CommandExecutor {
                             @Override
                             public void run(){
                                 new TicTacToeGame(requestSender, requestRecipient);
-                            }}, 15L);                        
+                            }}, 15L);
                         return true; //only one entry, don't waste checks
                     }
-                }               
+                }
                 player.sendMessage(ChatColor.GOLD + "No request detected.");
             } else if (args[0].equalsIgnoreCase("reject")) {
                 for (Entry entry : ConnectFour.requests.entrySet()) {
@@ -57,6 +57,12 @@ public class TicTacToeCommand implements CommandExecutor {
                 if (playerTwo == null) {
                     player.sendMessage(args[0] + ChatColor.GOLD + " is not a valid argument.");
                     return false;
+                } if (!ConnectFour.permissionHandler.has(player, "tictactoe.start") || !ConnectFour.permissionHandler.has(player, "tictactoe.play")) {
+                    player.sendMessage(ChatColor.GOLD + "Sorry, you don't have permission to start " + ChatColor.WHITE + "tic-tac-toe" + ChatColor.GOLD + " games.");
+                    return false;
+                } if (!ConnectFour.permissionHandler.has(playerTwo, "tictactoe.play")) {
+                    player.sendMessage(playerTwo.getName() + ChatColor.GOLD + " doesn't have permission to play "  + ChatColor.WHITE + "tic-tac-toe" + ChatColor.GOLD + ".");
+                    return false;
                 } if (playerTwo.equals(player)) {
                     player.sendMessage(ChatColor.GOLD + "You can't play against yourself!");
                     return false;
@@ -70,7 +76,7 @@ public class TicTacToeCommand implements CommandExecutor {
                     ConnectFour.requests.remove(player);//deny the old request to this player so two ticGames don't occur at once
                 ConnectFour.requests.put(player, playerTwo);
                 player.sendMessage(playerTwo.getDisplayName() + ChatColor.GOLD + " has received your request.");
-                playerTwo.sendMessage(player.getName() + ChatColor.GOLD + " would like to play a game of " + ChatColor.WHITE + "Tic Tac Toe" + ChatColor.GOLD + "!");
+                playerTwo.sendMessage(player.getName() + ChatColor.GOLD + " would like to play a game of " + ChatColor.WHITE + "tic-tac-toe" + ChatColor.GOLD + "!");
                 playerTwo.sendMessage("  /tic accept" + ChatColor.GOLD + " to play;");
                 playerTwo.sendMessage("  /tic reject" + ChatColor.GOLD + " if you don't want to.");
                 return true;

@@ -1,5 +1,7 @@
 package wut.cholo71796.ConnectFour;
 
+import com.nijiko.permissions.PermissionHandler;
+import com.nijikokun.bukkit.Permissions.Permissions;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -36,6 +38,8 @@ public class ConnectFour extends JavaPlugin {
     public static Map<Player, TicTacToeGame> ticGames = new HashMap<Player, TicTacToeGame>();
     public static Map<Player, Player> requests = new HashMap<Player, Player>();
     
+    public static PermissionHandler permissionHandler;
+    
     private static PluginDescriptionFile pdfFile;
     
     @Override
@@ -69,6 +73,8 @@ public class ConnectFour extends JavaPlugin {
         IListener inventoryListener = new IListener(this);
         pluginManager.registerEvent(Type.CUSTOM_EVENT, inventoryListener, Priority.Normal, this);
         
+        setupPermissions();
+        
         Log.info("enabled.");
     }
     
@@ -96,4 +102,20 @@ public class ConnectFour extends JavaPlugin {
         in.close();
         out.close();
         Log.info("BukkitContrib download finished.");}
+    
+    private void setupPermissions() {
+        if (permissionHandler != null) {
+            return;
+        }
+        
+        Plugin permissionsPlugin = this.getServer().getPluginManager().getPlugin("Permissions");
+        
+        if (permissionsPlugin == null) {
+            Log.info("Permissions (the plugin) could not be found. All players have permission.");
+            return;
+        }
+        
+        permissionHandler = ((Permissions) permissionsPlugin).getHandler();
+        Log.info("Permissions (the plugin) found.");
+    }
 }
