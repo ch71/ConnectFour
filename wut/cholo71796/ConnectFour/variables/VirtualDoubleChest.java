@@ -34,13 +34,25 @@ public class VirtualDoubleChest {
     public void showToPlayers(Player playerOne, Player playerTwo) {
         ((CraftPlayer) playerOne).getHandle().a(lc);
         ((CraftPlayer) playerTwo).getHandle().a(lc);
-        putBorders();
     }
     
-    private void putBorders() {
+    public void putConnectFourBorders() {
         for (int i = 0 ; i <= 45; i += 9)
             lc.setItem(i, new ItemStack(Block.WOOL, 1, 11));
         for (int i = 8 ; i <= 53; i += 9)
             lc.setItem(i, new ItemStack(Block.WOOL, 1, 11));
+    }
+    
+    public void putTicTacToeBorders() {
+        for (int i = 2 ; i <= 6 ; i++) //top of frame
+            lc.setItem(i, new ItemStack(Block.PISTON_EXTENSION));
+        for (int i = 38 ; i <= 42 ; i++) // bottom of frame
+            lc.setItem(i, new ItemStack(Block.PISTON_EXTENSION));
+        for (int i = 11 ; i <= 29 ; i += 9) {
+            lc.setItem(i, new ItemStack(Block.PISTON_EXTENSION));
+            lc.setItem(i + 4, new ItemStack(Block.PISTON_EXTENSION));
+        }
+        for (int i = 48 ; i <= 50 ; i++) // posts below bottom
+            lc.setItem(i, new ItemStack(Block.LADDER));
     }
 }

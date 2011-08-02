@@ -14,6 +14,7 @@ import org.bukkitcontrib.event.inventory.InventoryClickEvent;
 import org.bukkitcontrib.event.inventory.InventoryCloseEvent;
 import org.bukkitcontrib.event.inventory.InventoryListener;
 import wut.cholo71796.ConnectFour.variables.ConnectFourGame;
+import wut.cholo71796.ConnectFour.variables.TicTacToeGame;
 
 /**
  *
@@ -25,50 +26,91 @@ public class IListener extends InventoryListener {
         plugin = instance;
     }
     
-    private ConnectFourGame game;
+    private ConnectFourGame cfGame;
+    private TicTacToeGame ticGame;
     
     @Override
     public void onInventoryClick(InventoryClickEvent event) {
-        Inventory inventory = event.getInventory();
-        Player player = event.getPlayer();
-        if (ConnectFour.games.containsKey(player))
-            event.setCancelled(true);
+        if (ConnectFour.cfGames.containsKey(event.getPlayer()))
+            connectFourClick(event);
+        else if (ConnectFour.ticGames.containsKey(event.getPlayer()))
+            ticTacToeClick(event);
         else
             return;
-        int slot = event.getSlot();
-        if (slot == -999)
-            return;
-        if (event.isShiftClick())
-            return;
-        game = ConnectFour.games.get(player);
-        if (game.isWon())
-            return;
-        if (game.isPlayersTurn(player)) {
-            if (inventory.getName().equals("Connect Four")) {
-                int i = slot % 9 + 45;
-                while (!inventory.getItem(i).getType().equals(Material.AIR) && i > slot)
-                    i -= 9;
-                if (inventory.getItem(i).getType().equals(Material.AIR)) {
-                    if (game.getPlayerOne() == player)
-                        inventory.setItem(i, new ItemStack(Material.WOOL, 1, DyeColor.RED.getData()));
-                    else if (game.getPlayerTwo() == player)
-                        inventory.setItem(i, new ItemStack(Material.WOOL, 1, DyeColor.YELLOW.getData()));
-                    game.nextTurn(i);
-                }
-            }
-        }
     }
     
     @Override
     public void onInventoryClose(InventoryCloseEvent event) {
         if (event.getInventory().getName().equals("Connect Four")) {
-            game = ConnectFour.games.get(event.getPlayer());
-            Player playerOne = game.getPlayerOne();
-            Player playerTwo = game.getPlayerTwo();
+            cfGame = ConnectFour.cfGames.get(event.getPlayer());
+            Player playerOne = cfGame.getPlayerOne();
+            Player playerTwo = cfGame.getPlayerTwo();
             ((CraftPlayer)playerOne).getHandle().y();
             ((CraftPlayer)playerTwo).getHandle().y();
-            ConnectFour.games.remove(playerOne);
-            ConnectFour.games.remove(playerTwo);
+            ConnectFour.cfGames.remove(playerOne);
+            ConnectFour.cfGames.remove(playerTwo);
+        } else if (event.getInventory().getName().equals("Tic-Tac-Toe")) {
+            ticGame = ConnectFour.ticGames.get(event.getPlayer());
+            Player playerOne = ticGame.getPlayerOne();
+            Player playerTwo = ticGame.getPlayerTwo();
+            ((CraftPlayer)playerOne).getHandle().y();
+            ((CraftPlayer)playerTwo).getHandle().y();
+            ConnectFour.ticGames.remove(playerOne);
+            ConnectFour.ticGames.remove(playerTwo);
+        }
+    }
+    
+    private void connectFourClick(InventoryClickEvent event) {
+        Inventory inventory = event.getInventory();
+        Player player = event.getPlayer();
+        event.setCancelled(true);
+        int slot = event.getSlot();
+        if (slot == -999)
+            return;
+        if (event.isShiftClick())
+            return;
+        cfGame = ConnectFour.cfGames.get(player);
+        if (cfGame.isWon())
+            return;
+        if (cfGame.isPlayersTurn(player)) {
+            if (inventory.getName().equals("Connect Four")) {
+                int i = slot % 9 + 45;
+                while (!inventory.getItem(i).getType().equals(Material.AIR) && i > slot)
+                    i -= 9;
+                if (inventory.getItem(i).getType().equals(Material.AIR)) {
+                    if (cfGame.getPlayerOne() == player)
+                        inventory.setItem(i, new ItemStack(Material.WOOL, 1, DyeColor.RED.getData()));
+                    else if (cfGame.getPlayerTwo() == player)
+                        inventory.setItem(i, new ItemStack(Material.WOOL, 1, DyeColor.YELLOW.getData()));
+                    cfGame.nextTurn(i);
+                }
+            }
+        }
+    }
+    
+    private void ticTacToeClick(InventoryClickEvent event) {
+        Inventory inventory = event.getInventory();
+        Player player = event.getPlayer();
+        event.setCancelled(true);
+        int slot = event.getSlot();
+        if (slot == -999)
+            return;
+        int column = slot % 9;
+        if (event.isShiftClick())
+            return;
+        ticGame = ConnectFour.ticGames.get(player);
+        if (ticGame.isWon())
+            return;
+        if (ticGame.isPlayersTurn(player)) {
+            if (inventory.getName().equals("Tic-Tac-Toe")) {
+                if (inventory.getItem(slot).getType().equals(Material.AIR) && column >= 3 && column <= 5) {
+                    if (ticGame.getPlayerOne() == player)
+                        inventory.setItem(slot, new ItemStack(Material.WOOL, 1, DyeColor.BLACK.getData()));
+                    else if (ticGame.getPlayerTwo() == player)
+                        inventory.setItem(slot, new ItemStack(Material.WOOL, 1, DyeColor.WHITE.getData()));
+                    ticGame.nextTurn(slot);
+                }
+            }
         }
     }
 }

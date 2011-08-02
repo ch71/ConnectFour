@@ -6,3 +6,5 @@ author: cholo71796
 commands:
    connectfour:
        aliases: [cf, c4]
+   tictactoe:
+       aliases: [tic, ttt, t3, t]

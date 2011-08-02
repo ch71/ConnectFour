@@ -19,8 +19,10 @@ import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import wut.cholo71796.ConnectFour.commands.ConnectFourCommand;
+import wut.cholo71796.ConnectFour.commands.TicTacToeCommand;
 import wut.cholo71796.ConnectFour.utilities.Log;
 import wut.cholo71796.ConnectFour.variables.ConnectFourGame;
+import wut.cholo71796.ConnectFour.variables.TicTacToeGame;
 
 /**
  *
@@ -30,14 +32,15 @@ public class ConnectFour extends JavaPlugin {
     public static Plugin plugin;
     public static File dataFolder;
     
-    public static Map<Player, ConnectFourGame> games = new HashMap<Player, ConnectFourGame>();
+    public static Map<Player, ConnectFourGame> cfGames = new HashMap<Player, ConnectFourGame>();
+    public static Map<Player, TicTacToeGame> ticGames = new HashMap<Player, TicTacToeGame>();
     public static Map<Player, Player> requests = new HashMap<Player, Player>();
     
     private static PluginDescriptionFile pdfFile;
     
     @Override
     public void onDisable() {
-        for (Player player : games.keySet()) {
+        for (Player player : cfGames.keySet()) {
             ((CraftPlayer) player).getHandle().y();
             player.sendMessage(ChatColor.GOLD + "Game closed due to server restart.");
         }
@@ -51,6 +54,7 @@ public class ConnectFour extends JavaPlugin {
         new Log(pdfFile.getName());
         
         getCommand("connectfour").setExecutor(new ConnectFourCommand());
+        getCommand("tictactoe").setExecutor(new TicTacToeCommand());
         
         final PluginManager pluginManager = getServer().getPluginManager();
         

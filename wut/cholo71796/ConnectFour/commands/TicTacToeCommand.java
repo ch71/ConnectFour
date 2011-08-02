@@ -1,8 +1,5 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package wut.cholo71796.ConnectFour.commands;
+
 
 import java.util.Map.Entry;
 import org.bukkit.ChatColor;
@@ -11,14 +8,8 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import wut.cholo71796.ConnectFour.ConnectFour;
-import wut.cholo71796.ConnectFour.variables.ConnectFourGame;
-
-/**
- *
- * @author Cole Erickson
- */
-public class ConnectFourCommand implements CommandExecutor {
-    
+import wut.cholo71796.ConnectFour.variables.TicTacToeGame;
+public class TicTacToeCommand implements CommandExecutor {    
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if (!(sender instanceof Player))
@@ -28,7 +19,7 @@ public class ConnectFourCommand implements CommandExecutor {
         if (args.length == 0) {
             return false;
         }
-        
+                
         if (args.length == 1) {
             if (args[0].equalsIgnoreCase("accept")) {
                 for (Entry entry : ConnectFour.requests.entrySet()) {
@@ -43,7 +34,7 @@ public class ConnectFourCommand implements CommandExecutor {
                         ConnectFour.plugin.getServer().getScheduler().scheduleSyncDelayedTask(ConnectFour.plugin, new Runnable(){
                             @Override
                             public void run(){
-                                new ConnectFourGame(requestSender, requestRecipient);
+                                new TicTacToeGame(requestSender, requestRecipient);
                             }}, 15L);                        
                         return true; //only one entry, don't waste checks
                     }
@@ -69,19 +60,19 @@ public class ConnectFourCommand implements CommandExecutor {
                 } if (playerTwo.equals(player)) {
                     player.sendMessage(ChatColor.GOLD + "You can't play against yourself!");
                     return false;
-                } if (ConnectFour.cfGames.containsKey(playerTwo)) {
+                } if (ConnectFour.ticGames.containsKey(playerTwo)) {
                     player.sendMessage(playerTwo.getDisplayName() + ChatColor.GOLD + " is already in a game.");
                     return false;
                 } if (ConnectFour.requests.containsKey(playerTwo)) {
                     player.sendMessage(playerTwo.getDisplayName() + ChatColor.GOLD + " already has (or sent) a " + ChatColor.WHITE + "Connect Four " + ChatColor.GOLD + "request.");
                     return false;
                 } if (ConnectFour.requests.containsKey(player))
-                    ConnectFour.requests.remove(player);//deny the old request to this player so two cfGames don't occur at once
+                    ConnectFour.requests.remove(player);//deny the old request to this player so two ticGames don't occur at once
                 ConnectFour.requests.put(player, playerTwo);
                 player.sendMessage(playerTwo.getDisplayName() + ChatColor.GOLD + " has received your request.");
-                playerTwo.sendMessage(player.getName() + ChatColor.GOLD + " would like to play a game of " + ChatColor.WHITE + "Connect Four" + ChatColor.GOLD + "!");
-                playerTwo.sendMessage("  /cf accept" + ChatColor.GOLD + " to play;");
-                playerTwo.sendMessage("  /cf reject" + ChatColor.GOLD + " if you don't want to.");
+                playerTwo.sendMessage(player.getName() + ChatColor.GOLD + " would like to play a game of " + ChatColor.WHITE + "Tic Tac Toe" + ChatColor.GOLD + "!");
+                playerTwo.sendMessage("  /tic accept" + ChatColor.GOLD + " to play;");
+                playerTwo.sendMessage("  /tic reject" + ChatColor.GOLD + " if you don't want to.");
                 return true;
             }
         }

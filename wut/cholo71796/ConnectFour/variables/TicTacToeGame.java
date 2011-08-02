@@ -18,7 +18,7 @@ import wut.cholo71796.ConnectFour.ConnectFour;
  *
  * @author Cole Erickson
  */
-public class ConnectFourGame {
+public class TicTacToeGame {
     private VirtualDoubleChest chest;
     private InventoryLargeChest inventory;
     private Player playerOne;
@@ -31,11 +31,11 @@ public class ConnectFourGame {
     private boolean playerTwoClosed;
     private Set<Integer> winningSlots = new HashSet<Integer>();
     
-    private static final ItemStack redCoin = new ItemStack(Block.WOOL, 1, 14);
-    private static final ItemStack yellowCoin = new ItemStack(Block.WOOL, 1, 4);
+    private static final ItemStack blackCoin = new ItemStack(Block.WOOL, 1, 15);
+    private static final ItemStack whiteCoin = new ItemStack(Block.WOOL, 1);
     private static final ItemStack placeholderCoin = new ItemStack(Block.COAL_ORE, 1, 15);
     
-    public ConnectFourGame(Player playerOne, Player playerTwo) {
+    public TicTacToeGame(Player playerOne, Player playerTwo) {
         this.playerOne = playerOne;
         this.playerTwo = playerTwo;
         this.turn = playerTwo;
@@ -43,24 +43,24 @@ public class ConnectFourGame {
     }
     
     private void startGame() {
-        chest = new VirtualDoubleChest("Connect Four");
-        chest.putConnectFourBorders();
+        chest = new VirtualDoubleChest("Tic-Tac-Toe");
         inventory = chest.getLc();
-        ConnectFour.cfGames.put(playerOne, this);
-        ConnectFour.cfGames.put(playerTwo, this);
+        ConnectFour.ticGames.put(playerOne, this);
+        ConnectFour.ticGames.put(playerTwo, this);
         chest.showToPlayers(playerOne, playerTwo);
+        chest.putTicTacToeBorders();
     }
     
     public void nextTurn(int slot) {
         if (turn.equals(playerOne))  {
-            if (checkWin(slot, redCoin)) {
+            if (checkWin(slot, blackCoin)) {
                 won = true;
                 win();
                 return;
             }
             turn = playerTwo;
         } else {
-            if (checkWin(slot, yellowCoin)) {
+            if (checkWin(slot, whiteCoin)) {
                 won = true;
                 win();
                 return;
@@ -74,86 +74,80 @@ public class ConnectFourGame {
             return true;
         return false;
     }
-    
+    //we <3 magic numbers
     public boolean checkWin(int slot, ItemStack coin) {
         //vertical check
         List<ItemStack> vertical = new ArrayList<ItemStack>();
-        for (int i = slot; i <= slot + 27; i += 9) // no need to check above, there can't be coins there
-            //            if (i <= 53 && i >= 0) //null  spaces cannot be problem, always will have block below
+        for (int i = slot - 18; i <= slot + 18; i += 9)
             if (i <= 53 && i >= 0 && inventory.getItem(i) != null)
                 vertical.add(inventory.getItem(i));
             else
                 vertical.add(placeholderCoin);
-        if (vertical.get(0).doMaterialsMatch(coin)
-                && vertical.get(1).doMaterialsMatch(coin)
-                && vertical.get(2).doMaterialsMatch(coin)
-                && vertical.get(3).doMaterialsMatch(coin)) {
-            winningSlots.add(slot);
-            winningSlots.add(slot + 9);
-            winningSlots.add(slot + 18);
-            winningSlots.add(slot + 27);
+        for (int i = 0 ; i <= 2 ; i++) {
+            List<ItemStack> verticalCheckerList = vertical.subList(i, i + 3);
+            if (verticalCheckerList.get(0).doMaterialsMatch(coin)
+                    && verticalCheckerList.get(1).doMaterialsMatch(coin)
+                    && verticalCheckerList.get(2).doMaterialsMatch(coin)) {
+                winningSlots.add(slot + (i * 9));
+                winningSlots.add(slot - 9 + (i * 9));
+                winningSlots.add(slot - 18 + (i * 9));
+            }
         }
         
         //horizontal check
         List<ItemStack> horizontal = new ArrayList<ItemStack>();
-        for (int i = slot - 3; i <= slot + 3; i++) {
+        for (int i = slot - 2; i <= slot + 2; i++) {
             if (i <= 53 && i >= 0 && inventory.getItem(i) != null)
                 horizontal.add(inventory.getItem(i));
             else
                 horizontal.add(placeholderCoin);
         }
-        for (int i = 0 ; i <= 3 ; i++) {
-            List<ItemStack> horizontalCheckerList = horizontal.subList(i, i + 4);
+        for (int i = 0 ; i <= 2 ; i++) {
+            List<ItemStack> horizontalCheckerList = horizontal.subList(i, i + 3);
             if (horizontalCheckerList.get(0).doMaterialsMatch(coin)
                     && horizontalCheckerList.get(1).doMaterialsMatch(coin)
-                    && horizontalCheckerList.get(2).doMaterialsMatch(coin)
-                    && horizontalCheckerList.get(3).doMaterialsMatch(coin)) {
+                    && horizontalCheckerList.get(2).doMaterialsMatch(coin)) {
                 winningSlots.add(slot + i);
                 winningSlots.add(slot - 1 + i);
                 winningSlots.add(slot - 2 + i);
-                winningSlots.add(slot - 3 + i);
             }
         }
         
         //negative slope diagonal
         List<ItemStack> negSlopeDiagonal = new ArrayList<ItemStack>();
-        for (int i = slot - 30; i <= slot + 30; i += 10) {
+        for (int i = slot - 20; i <= slot + 20; i += 10) {
             if (i <= 53 && i >= 0 && inventory.getItem(i) != null)
                 negSlopeDiagonal.add(inventory.getItem(i));
             else
                 negSlopeDiagonal.add(placeholderCoin);
         }
-        for (int i = 0 ; i <= 3 ; i++) {
-            List<ItemStack> negSlopeDiagonalCheckerList = negSlopeDiagonal.subList(i, i + 4);
+        for (int i = 0 ; i <= 2 ; i++) {
+            List<ItemStack> negSlopeDiagonalCheckerList = negSlopeDiagonal.subList(i, i + 3);
             if (negSlopeDiagonalCheckerList.get(0).doMaterialsMatch(coin)
                     && negSlopeDiagonalCheckerList.get(1).doMaterialsMatch(coin)
-                    && negSlopeDiagonalCheckerList.get(2).doMaterialsMatch(coin)
-                    && negSlopeDiagonalCheckerList.get(3).doMaterialsMatch(coin)) {
+                    && negSlopeDiagonalCheckerList.get(2).doMaterialsMatch(coin)) {
                 winningSlots.add(slot + (i * 10));
                 winningSlots.add(slot - 10 + (i * 10));
                 winningSlots.add(slot - 20 + (i * 10));
-                winningSlots.add(slot - 30 + (i * 10));
             }
         }
         
         //positive slope diagonal
         List<ItemStack> posSlopeDiagonal = new ArrayList<ItemStack>();
-        for (int i = slot - 24; i <= slot + 24; i += 8) {
+        for (int i = slot - 16; i <= slot + 16; i += 8) {
             if (i <= 53 && i >= 0 && inventory.getItem(i) != null)
                 posSlopeDiagonal.add(inventory.getItem(i));
             else
                 posSlopeDiagonal.add(placeholderCoin);
         }
-        for (int i = 0 ; i <= 3 ; i++) {
-            List<ItemStack> posSlopeDiagonalCheckerList = posSlopeDiagonal.subList(i, i + 4);
+        for (int i = 0 ; i <= 2 ; i++) {
+            List<ItemStack> posSlopeDiagonalCheckerList = posSlopeDiagonal.subList(i, i + 3);
             if (posSlopeDiagonalCheckerList.get(0).doMaterialsMatch(coin)
                     && posSlopeDiagonalCheckerList.get(1).doMaterialsMatch(coin)
-                    && posSlopeDiagonalCheckerList.get(2).doMaterialsMatch(coin)
-                    && posSlopeDiagonalCheckerList.get(3).doMaterialsMatch(coin)) {
+                    && posSlopeDiagonalCheckerList.get(2).doMaterialsMatch(coin)) {
                 winningSlots.add(slot + (i * 8));
                 winningSlots.add(slot - 8 + (i * 8));
                 winningSlots.add(slot - 16 + (i * 8));
-                winningSlots.add(slot - 24 + (i * 8));
             }
         }
         if (!winningSlots.isEmpty()) {
@@ -165,9 +159,9 @@ public class ConnectFourGame {
     
     public void win() {
         if (winner == playerOne)
-            winnerCoin = redCoin;
+            winnerCoin = blackCoin;
         else if (winner == playerTwo)
-            winnerCoin = yellowCoin;
+            winnerCoin = whiteCoin;
         
         ConnectFour.plugin.getServer().getScheduler().scheduleSyncRepeatingTask(ConnectFour.plugin, new Runnable(){
             double j = 0;
