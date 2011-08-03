@@ -9,72 +9,52 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import net.minecraft.server.Block;
-import net.minecraft.server.InventoryLargeChest;
 import net.minecraft.server.ItemStack;
+import org.bukkit.DyeColor;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import wut.cholo71796.ConnectFour.ConnectFour;
 
 /**
  *
  * @author Cole Erickson
  */
-public class TicTacToeGame {
-    private VirtualDoubleChest chest;
-    private InventoryLargeChest inventory;
-    private Player playerOne;
-    private Player playerTwo;
-    private Player turn;
-    private Player winner;
-    private ItemStack winnerCoin;
-    private boolean won = false;
-    private boolean playerOneClosed;
-    private boolean playerTwoClosed;
+public class TicTacToeGame extends Game {
     private Set<Integer> winningSlots = new HashSet<Integer>();
     
-    private static final ItemStack blackCoin = new ItemStack(Block.WOOL, 1, 15);
-    private static final ItemStack whiteCoin = new ItemStack(Block.WOOL, 1);
-    private static final ItemStack placeholderCoin = new ItemStack(Block.COAL_ORE, 1, 15);
-    
     public TicTacToeGame(Player playerOne, Player playerTwo) {
-        this.playerOne = playerOne;
-        this.playerTwo = playerTwo;
-        this.turn = playerTwo;
-        startGame();
+        super(playerOne, playerTwo, "Tic-tac-toe");
     }
     
-    private void startGame() {
-        chest = new VirtualDoubleChest("Tic-Tac-Toe");
-        inventory = chest.getLc();
-        ConnectFour.ticGames.put(playerOne, this);
-        ConnectFour.ticGames.put(playerTwo, this);
-        chest.showToPlayers(playerOne, playerTwo);
-        chest.putTicTacToeBorders();
+    @Override
+    public void onStart() {
+        for (int i = 2 ; i < 7 ; i++) {//top + bottom
+            inventory.setItem(i, new ItemStack(Block.PISTON_EXTENSION));
+            inventory.setItem(i + 36, new ItemStack(Block.PISTON_EXTENSION));
+        }
+        for (int i = 11 ; i <= 29 ; i += 9) {//sides
+            inventory.setItem(i, new ItemStack(Block.PISTON_EXTENSION));
+            inventory.setItem(i + 4, new ItemStack(Block.PISTON_EXTENSION));
+        }
+        for (int i = 48 ; i < 51 ; i++) //stand
+            inventory.setItem(i, new ItemStack(Block.LADDER));
     }
     
-    public void nextTurn(int slot) {
-        if (turn.equals(playerOne))  {
-            if (checkWin(slot, blackCoin)) {
-                won = true;
-                win();
-                return;
-            }
-            turn = playerTwo;
-        } else {
-            if (checkWin(slot, whiteCoin)) {
-                won = true;
-                win();
-                return;
-            }
-            turn = playerOne;
+    @Override
+    public void onClick(Player player, int slot, Inventory friendlyInventory) {
+        int column = slot % 9;
+        if (friendlyInventory.getItem(slot).getType().equals(Material.AIR) && column >= 3 && column <= 5) {
+            if (getPlayerOne() == player)
+                friendlyInventory.setItem(slot, new org.bukkit.inventory.ItemStack(Material.WOOL, 1, DyeColor.BLACK.getData()));
+            else if (getPlayerTwo() == player)
+                friendlyInventory.setItem(slot, new org.bukkit.inventory.ItemStack(Material.WOOL, 1, DyeColor.WHITE.getData()));
+            nextTurn(slot);
         }
     }
     
-    public boolean isPlayersTurn(Player player) {
-        if (player.equals(turn))
-            return true;
-        return false;
-    }
     //we <3 magic numbers
+    @Override
     public boolean checkWin(int slot, ItemStack coin) {
         //vertical check
         List<ItemStack> vertical = new ArrayList<ItemStack>();
@@ -157,12 +137,8 @@ public class TicTacToeGame {
         return false;
     }
     
-    public void win() {
-        if (winner == playerOne)
-            winnerCoin = blackCoin;
-        else if (winner == playerTwo)
-            winnerCoin = whiteCoin;
-        
+    @Override
+    public void onWin() {
         ConnectFour.plugin.getServer().getScheduler().scheduleSyncRepeatingTask(ConnectFour.plugin, new Runnable(){
             double j = 0;
             @Override
@@ -176,29 +152,5 @@ public class TicTacToeGame {
                 }
                 j++;
             }}, 1L, 15L);
-    }
-    
-    public Player getPlayerOne() {
-        return playerOne;
-    }
-    
-    public Player getPlayerTwo() {
-        return playerTwo;
-    }
-    
-    public boolean isWon() {
-        return won;
-    }
-    
-    public boolean didPlayersClose() {
-        return playerOneClosed && playerTwoClosed;
-    }
-    
-    public void setPlayerOneClosed(boolean playerOneClosed) {
-        this.playerOneClosed = playerOneClosed;
-    }
-    
-    public void setPlayerTwoClosed(boolean playerTwoClosed) {
-        this.playerTwoClosed = playerTwoClosed;
     }
 }

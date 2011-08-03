@@ -23,7 +23,7 @@ public class VirtualDoubleChest {
     public VirtualDoubleChest(String name) {
         chest = new TileEntityVirtualChest();
         chest2 = new TileEntityVirtualChest();
-
+        
         lc = new InventoryLargeChest(name, chest, chest2);
     }
     
@@ -33,7 +33,11 @@ public class VirtualDoubleChest {
     
     public void showToPlayers(Player playerOne, Player playerTwo) {
         ((CraftPlayer) playerOne).getHandle().a(lc);
-        ((CraftPlayer) playerTwo).getHandle().a(lc);
+        ((CraftPlayer) playerTwo).getHandle().a(lc);       
+    }
+    
+    public void showToPlayer(Player player) {
+        ((CraftPlayer) player).getHandle().a(lc);
     }
     
     public void putConnectFourBorders() {

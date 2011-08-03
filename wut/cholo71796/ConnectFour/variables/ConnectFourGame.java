@@ -9,72 +9,64 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import net.minecraft.server.Block;
-import net.minecraft.server.InventoryLargeChest;
 import net.minecraft.server.ItemStack;
+import org.bukkit.DyeColor;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import wut.cholo71796.ConnectFour.ConnectFour;
 
 /**
  *
  * @author Cole Erickson
  */
-public class ConnectFourGame {
-    private VirtualDoubleChest chest;
-    private InventoryLargeChest inventory;
-    private Player playerOne;
-    private Player playerTwo;
-    private Player turn;
-    private Player winner;
-    private ItemStack winnerCoin;
-    private boolean won = false;
-    private boolean playerOneClosed;
-    private boolean playerTwoClosed;
+public class ConnectFourGame extends Game {
     private Set<Integer> winningSlots = new HashSet<Integer>();
     
-    private static final ItemStack redCoin = new ItemStack(Block.WOOL, 1, 14);
-    private static final ItemStack yellowCoin = new ItemStack(Block.WOOL, 1, 4);
-    private static final ItemStack placeholderCoin = new ItemStack(Block.COAL_ORE, 1, 15);
-    
     public ConnectFourGame(Player playerOne, Player playerTwo) {
-        this.playerOne = playerOne;
-        this.playerTwo = playerTwo;
-        this.turn = playerTwo;
-        startGame();
+        super(playerOne, playerTwo, "Connect Four", new ItemStack(Block.WOOL, 1, 14), new ItemStack(Block.WOOL, 1, 4));
     }
     
-    private void startGame() {
-        chest = new VirtualDoubleChest("Connect Four");
-        chest.putConnectFourBorders();
-        inventory = chest.getLc();
-        ConnectFour.cfGames.put(playerOne, this);
-        ConnectFour.cfGames.put(playerTwo, this);
-        chest.showToPlayers(playerOne, playerTwo);
-    }
-    
-    public void nextTurn(int slot) {
-        if (turn.equals(playerOne))  {
-            if (checkWin(slot, redCoin)) {
-                won = true;
-                win();
-                return;
-            }
-            turn = playerTwo;
-        } else {
-            if (checkWin(slot, yellowCoin)) {
-                won = true;
-                win();
-                return;
-            }
-            turn = playerOne;
+    @Override
+    public void onClick(Player player, int slot, Inventory inventory) {
+        int i = slot % 9 + 45;
+        while (!inventory.getItem(i).getType().equals(Material.AIR) && i > slot)
+            i -= 9;
+        if (inventory.getItem(i).getType().equals(Material.AIR)) {
+            if (getPlayerOne() == player)
+                inventory.setItem(i, new org.bukkit.inventory.ItemStack(Material.WOOL, 1, DyeColor.RED.getData()));
+            else if (getPlayerTwo() == player)
+                inventory.setItem(i, new org.bukkit.inventory.ItemStack(Material.WOOL, 1, DyeColor.YELLOW.getData()));
+            nextTurn(i);
         }
     }
     
-    public boolean isPlayersTurn(Player player) {
-        if (player.equals(turn))
-            return true;
-        return false;
+    @Override
+    public void onStart() {
+        for (int i = 0 ; i <= 45; i += 9)
+            inventory.setItem(i, new ItemStack(Block.WOOL, 1, 11));
+        for (int i = 8 ; i <= 53; i += 9)
+            inventory.setItem(i, new ItemStack(Block.WOOL, 1, 11));
     }
     
+    @Override
+    public void onWin() {
+        ConnectFour.plugin.getServer().getScheduler().scheduleSyncRepeatingTask(ConnectFour.plugin, new Runnable(){
+            double j = 0;
+            @Override
+            public void run(){
+                if (j % 2 == 0) {
+                    for (int fooSlot : winningSlots)
+                        inventory.setItem(fooSlot, null);
+                } else {
+                    for (int fooSlot : winningSlots)
+                        inventory.setItem(fooSlot, winnerCoin);
+                }
+                j++;
+            }}, 1L, 15L);
+    }
+    
+    @Override
     public boolean checkWin(int slot, ItemStack coin) {
         //vertical check
         List<ItemStack> vertical = new ArrayList<ItemStack>();
@@ -161,50 +153,5 @@ public class ConnectFourGame {
             return true;
         }
         return false;
-    }
-    
-    public void win() {
-        if (winner == playerOne)
-            winnerCoin = redCoin;
-        else if (winner == playerTwo)
-            winnerCoin = yellowCoin;
-        
-        ConnectFour.plugin.getServer().getScheduler().scheduleSyncRepeatingTask(ConnectFour.plugin, new Runnable(){
-            double j = 0;
-            @Override
-            public void run(){
-                if (j % 2 == 0) {
-                    for (int fooSlot : winningSlots)
-                        inventory.setItem(fooSlot, null);
-                } else {
-                    for (int fooSlot : winningSlots)
-                        inventory.setItem(fooSlot, winnerCoin);
-                }
-                j++;
-            }}, 1L, 15L);
-    }
-    
-    public Player getPlayerOne() {
-        return playerOne;
-    }
-    
-    public Player getPlayerTwo() {
-        return playerTwo;
-    }
-    
-    public boolean isWon() {
-        return won;
-    }
-    
-    public boolean didPlayersClose() {
-        return playerOneClosed && playerTwoClosed;
-    }
-    
-    public void setPlayerOneClosed(boolean playerOneClosed) {
-        this.playerOneClosed = playerOneClosed;
-    }
-    
-    public void setPlayerTwoClosed(boolean playerTwoClosed) {
-        this.playerTwoClosed = playerTwoClosed;
     }
 }
