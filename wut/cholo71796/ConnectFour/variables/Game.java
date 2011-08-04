@@ -18,14 +18,17 @@ import wut.cholo71796.ConnectFour.utilities.Log;
  */
 public class Game {
     private VirtualDoubleChest chest;
-
+    
     private Player playerOne;
     private Player playerTwo;
-    private Player turn;    
-    private Player winner;
+    private Player turn;
+    
     private boolean won = false;
     private boolean playerOneClosed;
     private boolean playerTwoClosed;
+    
+    public Player winner;
+    public Player loser;
     
     public InventoryLargeChest inventory;
     public ItemStack playerOneCoin;
@@ -77,15 +80,18 @@ public class Game {
     public void nextTurn(int slot) {
         if (turn.equals(playerOne))  {
             if (checkWin(slot, playerOneCoin)) {
-                win();
+                
                 winner = playerOne;
+                loser = playerTwo;
+                win();
                 return;
             }
             turn = playerTwo;
         } else {
-            if (checkWin(slot, playerTwoCoin)) {
-                win();
+            if (checkWin(slot, playerTwoCoin)) {                
                 winner = playerTwo;
+                loser = playerOne;
+                win();
                 return;
             }
             turn = playerOne;

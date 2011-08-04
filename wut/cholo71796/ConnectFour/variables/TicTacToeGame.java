@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Set;
 import net.minecraft.server.Block;
 import net.minecraft.server.ItemStack;
+import org.bukkit.ChatColor;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -139,6 +140,7 @@ public class TicTacToeGame extends Game {
     
     @Override
     public void onWin() {
+        ConnectFour.plugin.getServer().broadcastMessage(winner.getDisplayName() + ChatColor.GOLD + " beat " + ChatColor.WHITE + loser.getDisplayName() + ChatColor.GOLD + " in a game of " + ChatColor.WHITE + "tic-tac-toe" + ChatColor.GOLD + ".");
         ConnectFour.plugin.getServer().getScheduler().scheduleSyncRepeatingTask(ConnectFour.plugin, new Runnable(){
             double j = 0;
             @Override

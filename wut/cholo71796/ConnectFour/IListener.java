@@ -26,6 +26,7 @@ public class IListener extends InventoryListener {
     
     private Game game;
     private Inventory inventory;
+    private String gameName;
     private String invName;
     private String commandPrefix;
     
@@ -43,7 +44,7 @@ public class IListener extends InventoryListener {
         game = ConnectFour.games.get(player);
         inventory = event.getInventory();
         invName = inventory.getName();
-
+        
         
         event.setCancelled(true);
         int slot = event.getSlot();
@@ -60,7 +61,7 @@ public class IListener extends InventoryListener {
     }
     
     @Override
-    public void onInventoryClose(final InventoryCloseEvent event) {       
+    public void onInventoryClose(final InventoryCloseEvent event) {
         player = event.getPlayer();
         if (!ConnectFour.games.containsKey(player))
             return;
@@ -70,12 +71,14 @@ public class IListener extends InventoryListener {
         playerOne = game.getPlayerOne();
         playerTwo = game.getPlayerTwo();
         
-        if (invName.equals("Connect Four"))
+        if (invName.equals("Connect Four")) {
             commandPrefix = "cf";
-        else if (invName.equals("Tic-tac-toe"))
+            gameName = "Connect Four";
+        } else if (invName.equals("Tic-tac-toe")) {
             commandPrefix = "tic";
+            gameName = "tic-tac-toe";
+        }
         
-
         if (player.equals(playerOne))
             game.setPlayerOneClosed(true);
         else if (player.equals(playerTwo))
@@ -91,13 +94,19 @@ public class IListener extends InventoryListener {
             ConnectFour.plugin.getServer().getScheduler().scheduleSyncDelayedTask(ConnectFour.plugin, new Runnable(){
                 @Override
                 public void run(){
-                    if (player.equals(playerOne) ? game.isPlayerOneClosed() : game.isPlayerTwoClosed()) {
-                        ((CraftPlayer)playerOne).getHandle().y();
-                        ((CraftPlayer)playerTwo).getHandle().y();
-                        ConnectFour.games.remove(playerOne);
-                        ConnectFour.games.remove(playerTwo);
-                        player.sendMessage(ChatColor.GOLD + "You have forfeited the game.");
-                    }
+                    if (player.equals(playerOne) && game.isPlayerOneClosed()) {
+                        game.loser = playerOne;
+                        game.winner = playerTwo;
+                    } else if (player.equals(playerTwo) && game.isPlayerTwoClosed()) {
+                        game.loser = playerTwo;
+                        game.winner = playerOne;
+                    } else
+                        return;
+                    ((CraftPlayer)playerOne).getHandle().y();
+                    ((CraftPlayer)playerTwo).getHandle().y();
+                    ConnectFour.games.remove(playerOne);
+                    ConnectFour.games.remove(playerTwo);
+                    ConnectFour.plugin.getServer().broadcastMessage(game.loser.getDisplayName() + ChatColor.GOLD + " forfeited to " + ChatColor.WHITE + game.winner.getDisplayName() + ChatColor.GOLD + " in a game of " + ChatColor.WHITE + gameName + ChatColor.GOLD + ".");
                 }}, 200L);}
         else {
             ((CraftPlayer)playerOne).getHandle().y();
