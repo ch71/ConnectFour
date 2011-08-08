@@ -4,15 +4,14 @@
  */
 package wut.cholo71796.ConnectFour;
 
-import org.bukkit.ChatColor;
 import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.getspout.spoutapi.event.inventory.InventoryClickEvent;
 import org.getspout.spoutapi.event.inventory.InventoryCloseEvent;
 import org.getspout.spoutapi.event.inventory.InventoryListener;
+import wut.cholo71796.ConnectFour.games.Game;
 import wut.cholo71796.ConnectFour.utilities.Log;
-import wut.cholo71796.ConnectFour.variables.Game;
 
 /**
  *
@@ -37,14 +36,12 @@ public class IListener extends InventoryListener {
     @Override
     public void onInventoryClick(InventoryClickEvent event) {
         player = event.getPlayer();
-        Log.info(ConnectFour.games.toString());
         if (!ConnectFour.games.containsKey(player))
             return;
         
         game = ConnectFour.games.get(player);
         inventory = event.getInventory();
         invName = inventory.getName();
-        
         
         event.setCancelled(true);
         int slot = event.getSlot();
@@ -55,7 +52,7 @@ public class IListener extends InventoryListener {
         if (game.isWon())
             return;
         if (game.isPlayersTurn(player)) {
-            if (invName.equals("Tic-tac-toe") || invName.equals("Connect Four"))
+            if (invName.equals(Config.getTicTacToeName()) || invName.equals(Config.getConnectFourName()))
                 game.onClick(player, slot, inventory);
         }
     }
@@ -71,12 +68,12 @@ public class IListener extends InventoryListener {
         playerOne = game.getPlayerOne();
         playerTwo = game.getPlayerTwo();
         
-        if (invName.equals("Connect Four")) {
+        if (invName.equals(Config.getConnectFourName())) {
             commandPrefix = "cf";
-            gameName = "Connect Four";
-        } else if (invName.equals("Tic-tac-toe")) {
+            gameName = Config.getConnectFourName();
+        } else if (invName.equals(Config.getTicTacToeName())) {
             commandPrefix = "tic";
-            gameName = "tic-tac-toe";
+            gameName = Config.getTicTacToeName();
         }
         
         if (player.equals(playerOne))
@@ -84,16 +81,16 @@ public class IListener extends InventoryListener {
         else if (player.equals(playerTwo))
             game.setPlayerTwoClosed(true);
         else
-            Log.severe("Player considered in game s/he should not be in.");
+            Log.severe("Player considered to be in game s/he should not be in.");
         
         if (!game.isWon()) {
-            player.sendMessage(ChatColor.GOLD + "Type "
-                    + ChatColor.WHITE + "/" + commandPrefix + " back" + ChatColor.GOLD +
-                    " within the next ten seconds to return.");
+            Config.sendBackPrompt(player, commandPrefix);
             
             ConnectFour.plugin.getServer().getScheduler().scheduleSyncDelayedTask(ConnectFour.plugin, new Runnable(){
                 @Override
                 public void run(){
+                    if (game.isWon())
+                        return;
                     if (player.equals(playerOne) && game.isPlayerOneClosed()) {
                         game.loser = playerOne;
                         game.winner = playerTwo;
@@ -102,11 +99,7 @@ public class IListener extends InventoryListener {
                         game.winner = playerOne;
                     } else
                         return;
-                    ((CraftPlayer)playerOne).getHandle().y();
-                    ((CraftPlayer)playerTwo).getHandle().y();
-                    ConnectFour.games.remove(playerOne);
-                    ConnectFour.games.remove(playerTwo);
-                    ConnectFour.plugin.getServer().broadcastMessage(game.loser.getDisplayName() + ChatColor.GOLD + " forfeited to " + ChatColor.WHITE + game.winner.getDisplayName() + ChatColor.GOLD + " in a game of " + ChatColor.WHITE + gameName + ChatColor.GOLD + ".");
+                    game.onForfeit();
                 }}, 200L);}
         else {
             ((CraftPlayer)playerOne).getHandle().y();

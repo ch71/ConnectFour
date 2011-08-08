@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package wut.cholo71796.ConnectFour.variables;
+package wut.cholo71796.ConnectFour.games;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -10,11 +10,12 @@ import java.util.List;
 import java.util.Set;
 import net.minecraft.server.Block;
 import net.minecraft.server.ItemStack;
-import org.bukkit.ChatColor;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
+import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
+import wut.cholo71796.ConnectFour.Config;
 import wut.cholo71796.ConnectFour.ConnectFour;
 
 /**
@@ -24,8 +25,8 @@ import wut.cholo71796.ConnectFour.ConnectFour;
 public class ConnectFourGame extends Game {
     private Set<Integer> winningSlots = new HashSet<Integer>();
     
-    public ConnectFourGame(Player playerOne, Player playerTwo) {
-        super(playerOne, playerTwo, "Connect Four", new ItemStack(Block.WOOL, 1, 14), new ItemStack(Block.WOOL, 1, 4));
+    public ConnectFourGame(Player playerOne, Player playerTwo, double stakes) {
+        super(playerOne, playerTwo, Config.getConnectFourName(), new ItemStack(Block.WOOL, 1, 14), new ItemStack(Block.WOOL, 1, 4), stakes);
     }
     
     @Override
@@ -52,7 +53,14 @@ public class ConnectFourGame extends Game {
     
     @Override
     public void onWin() {
-        ConnectFour.plugin.getServer().broadcastMessage(winner.getDisplayName() + ChatColor.GOLD + " beat " + ChatColor.WHITE + loser.getDisplayName() + ChatColor.GOLD + " in a game of " + ChatColor.WHITE + "Connect Four" + ChatColor.GOLD + ".");
+        if (stakes == 0)
+            for (Player msgrecvr : ConnectFour.plugin.getServer().getOnlinePlayers())
+                Config.sendGameWin(msgrecvr, winner, loser, Config.getConnectFourName());
+        else
+            for (Player msgrecvr : ConnectFour.plugin.getServer().getOnlinePlayers())
+                Config.sendGameWithStakesWin(msgrecvr, winner, loser, Config.getConnectFourName(), stakes);
+        ConnectFour.Method.getAccount(loser.getName()).subtract(stakes);
+        ConnectFour.Method.getAccount(winner.getName()).add(stakes);
         ConnectFour.plugin.getServer().getScheduler().scheduleSyncRepeatingTask(ConnectFour.plugin, new Runnable(){
             double j = 0;
             @Override
@@ -155,5 +163,22 @@ public class ConnectFourGame extends Game {
             return true;
         }
         return false;
+    }
+    
+    @Override
+    public void onForfeit() {
+        ((CraftPlayer)getPlayerOne()).getHandle().y();
+        ((CraftPlayer)getPlayerTwo()).getHandle().y();
+        setWon(true);
+        if (stakes == 0)
+            for (Player msgrecvr : ConnectFour.plugin.getServer().getOnlinePlayers())
+                Config.sendGameForfeit(msgrecvr, winner, loser, Config.getTicTacToeName());
+        else
+            for (Player msgrecvr : ConnectFour.plugin.getServer().getOnlinePlayers())
+                Config.sendGameWithStakesForfeit(msgrecvr, winner, loser, Config.getTicTacToeName(), stakes);
+        ConnectFour.Method.getAccount(loser.getName()).subtract(stakes);
+        ConnectFour.Method.getAccount(winner.getName()).add(stakes);
+        ConnectFour.games.remove(getPlayerOne());
+        ConnectFour.games.remove(getPlayerTwo());
     }
 }

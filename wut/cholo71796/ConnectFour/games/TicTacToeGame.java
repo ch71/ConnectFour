@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package wut.cholo71796.ConnectFour.variables;
+package wut.cholo71796.ConnectFour.games;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -10,11 +10,12 @@ import java.util.List;
 import java.util.Set;
 import net.minecraft.server.Block;
 import net.minecraft.server.ItemStack;
-import org.bukkit.ChatColor;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
+import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
+import wut.cholo71796.ConnectFour.Config;
 import wut.cholo71796.ConnectFour.ConnectFour;
 
 /**
@@ -24,8 +25,8 @@ import wut.cholo71796.ConnectFour.ConnectFour;
 public class TicTacToeGame extends Game {
     private Set<Integer> winningSlots = new HashSet<Integer>();
     
-    public TicTacToeGame(Player playerOne, Player playerTwo) {
-        super(playerOne, playerTwo, "Tic-tac-toe");
+    public TicTacToeGame(Player playerOne, Player playerTwo, double stakes) {
+        super(playerOne, playerTwo, Config.getTicTacToeName(), stakes);
     }
     
     @Override
@@ -140,7 +141,10 @@ public class TicTacToeGame extends Game {
     
     @Override
     public void onWin() {
-        ConnectFour.plugin.getServer().broadcastMessage(winner.getDisplayName() + ChatColor.GOLD + " beat " + ChatColor.WHITE + loser.getDisplayName() + ChatColor.GOLD + " in a game of " + ChatColor.WHITE + "tic-tac-toe" + ChatColor.GOLD + ".");
+        for (Player player : ConnectFour.plugin.getServer().getOnlinePlayers())
+                Config.sendGameWin(player, winner, loser, Config.getTicTacToeName());
+        ConnectFour.Method.getAccount(loser.getName()).subtract(stakes);
+        ConnectFour.Method.getAccount(winner.getName()).add(stakes);
         ConnectFour.plugin.getServer().getScheduler().scheduleSyncRepeatingTask(ConnectFour.plugin, new Runnable(){
             double j = 0;
             @Override
@@ -154,5 +158,19 @@ public class TicTacToeGame extends Game {
                 }
                 j++;
             }}, 1L, 15L);
+    }
+    
+    @Override
+    public void onForfeit() {
+        ((CraftPlayer)getPlayerOne()).getHandle().y();
+        ((CraftPlayer)getPlayerTwo()).getHandle().y(); //todo check if player should hear
+        setWon(true);
+        for (Player msgrecvr : ConnectFour.plugin.getServer().getOnlinePlayers()) {
+                Config.sendGameForfeit(msgrecvr, winner, loser, Config.getTicTacToeName());
+        }
+        ConnectFour.Method.getAccount(loser.getName()).subtract(stakes);
+        ConnectFour.Method.getAccount(winner.getName()).add(stakes);
+        ConnectFour.games.remove(getPlayerOne());
+        ConnectFour.games.remove(getPlayerTwo());
     }
 }

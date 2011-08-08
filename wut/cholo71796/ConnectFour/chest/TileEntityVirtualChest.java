@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package wut.cholo71796.ConnectFour.variables;
+package wut.cholo71796.ConnectFour.chest;
 
 import net.minecraft.server.EntityHuman;
 import net.minecraft.server.TileEntityChest;

@@ -2,15 +2,15 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package wut.cholo71796.ConnectFour.variables;
+package wut.cholo71796.ConnectFour.games;
 
+import wut.cholo71796.ConnectFour.chest.VirtualDoubleChest;
 import net.minecraft.server.Block;
 import net.minecraft.server.InventoryLargeChest;
 import net.minecraft.server.ItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import wut.cholo71796.ConnectFour.ConnectFour;
-import wut.cholo71796.ConnectFour.utilities.Log;
 
 /**
  *
@@ -27,6 +27,10 @@ public class Game {
     private boolean playerOneClosed;
     private boolean playerTwoClosed;
     
+    public double stakes;
+    
+    private String name;
+    
     public Player winner;
     public Player loser;
     
@@ -37,19 +41,22 @@ public class Game {
     public ItemStack winnerCoin;
     
     
-    public Game(Player playerOne, Player playerTwo, String name) {
-        this(playerOne, playerTwo, name, new ItemStack(Block.WOOL, 1, 15), new ItemStack(Block.WOOL, 1), new ItemStack(Block.COAL_ORE, 1, 15));
+    public Game(Player playerOne, Player playerTwo, String name, double stakes) {
+        this(playerOne, playerTwo, name, new ItemStack(Block.WOOL, 1, 15), new ItemStack(Block.WOOL, 1), new ItemStack(Block.COAL_ORE, 1, 15), stakes);
     }
     
-    public Game(Player playerOne, Player playerTwo, String name, ItemStack playerOneCoin, ItemStack playerTwoCoin) {
-        this(playerOne, playerTwo, name, playerOneCoin, playerTwoCoin, new ItemStack(Block.COAL_ORE, 1, 15));
+    public Game(Player playerOne, Player playerTwo, String name, ItemStack playerOneCoin, ItemStack playerTwoCoin, double stakes) {
+        this(playerOne, playerTwo, name, playerOneCoin, playerTwoCoin, new ItemStack(Block.COAL_ORE, 1, 15), stakes);
     }
     
     @SuppressWarnings("LeakingThisInConstructor")
-    public Game(Player playerOne, Player playerTwo, String name, ItemStack playerOneCoin, ItemStack playerTwoCoin, ItemStack placeholderCoin) {
+    public Game(Player playerOne, Player playerTwo, String name, ItemStack playerOneCoin, ItemStack playerTwoCoin, ItemStack placeholderCoin, double stakes) {
         this.playerOne = playerOne;
         this.playerTwo = playerTwo;
         this.turn = playerTwo;
+        
+        this.stakes = stakes;
+        this.name = name;
         
         this.playerOneCoin = playerOneCoin;
         this.playerTwoCoin = playerTwoCoin;
@@ -62,8 +69,6 @@ public class Game {
         chest.showToPlayers(playerOne, playerTwo);
         ConnectFour.games.put(playerOne, this);
         ConnectFour.games.put(playerTwo, this);
-        
-        Log.info("put players");
         onStart();
     }
     
@@ -79,8 +84,7 @@ public class Game {
     
     public void nextTurn(int slot) {
         if (turn.equals(playerOne))  {
-            if (checkWin(slot, playerOneCoin)) {
-                
+            if (checkWin(slot, playerOneCoin)) {                
                 winner = playerOne;
                 loser = playerTwo;
                 win();
@@ -122,6 +126,7 @@ public class Game {
     
     public void onWin() {}
     public void onStart() {}
+    public void onForfeit() {}
     
     public Player getPlayerOne() {
         return playerOne;
@@ -133,6 +138,10 @@ public class Game {
     
     public boolean isWon() {
         return won;
+    }
+
+    public void setWon(boolean won) {
+        this.won = won;
     }
     
     public boolean isPlayerOneClosed() {
@@ -149,5 +158,9 @@ public class Game {
     
     public void setPlayerTwoClosed(boolean playerTwoClosed) {
         this.playerTwoClosed = playerTwoClosed;
+    }
+
+    public String getName() {
+        return name;
     }
 }
