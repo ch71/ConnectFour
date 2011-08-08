@@ -1,5 +1,7 @@
 package wut.cholo71796.ConnectFour;
 
+import com.nijiko.permissions.PermissionHandler;
+import com.nijikokun.bukkit.Permissions.Permissions;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -43,6 +45,7 @@ public class ConnectFour extends JavaPlugin {
     public static Method Method = null;
     
     private PluginManager pluginManager;
+    public static PermissionHandler permissionHandler;
     
     @Override
     public void onDisable() {
@@ -74,6 +77,8 @@ public class ConnectFour extends JavaPlugin {
             }
         IListener inventoryListener = new IListener(this);
         pluginManager.registerEvent(Type.CUSTOM_EVENT, inventoryListener, Priority.Normal, this);
+        
+        setupPermissions();
         
         Log.info("enabled.");
     }
@@ -154,9 +159,9 @@ public class ConnectFour extends JavaPlugin {
             for (Request entry : requests) {
                 if (entry.getReceiver().equals(player)) {
                     Player requestSender = entry.getSender();
-                    Player requestReceiver = entry.getReceiver();                    
+                    Player requestReceiver = entry.getReceiver();
                     Config.sendRejectSender(requestSender, requestReceiver);
-                    Config.sendRejectReceiver(requestReceiver, requestSender);                    
+                    Config.sendRejectReceiver(requestReceiver, requestSender);
                     requests.remove(entry);
                     return true; //only one entry, don't waste checks
                 }
@@ -177,13 +182,25 @@ public class ConnectFour extends JavaPlugin {
             } if (ConnectFour.games.containsKey(playerTwo)) {
                 Config.sendRequestAlreadyPlaying(player, playerTwo, ConnectFour.games.get(playerTwo).getName());
                 return false;
-            } if (!player.hasPermission(permNodeBase + "play") || !player.hasPermission(permNodeBase + "start")) {
-                Config.sendRequestNoStart(player, gameName);
-                return false;
-            } if (!playerTwo.hasPermission(permNodeBase + "play")) {
-                Config.sendRequestNoOther(player, playerTwo, gameName);
-                return false;
+                //perms
+            } if (permissionHandler == null) {
+                if (!player.hasPermission(permNodeBase + "play") || !player.hasPermission(permNodeBase + "start")) {
+                    Config.sendRequestNoStart(player, gameName);
+                    return false;
+                } if (!playerTwo.hasPermission(permNodeBase + "play")) {
+                    Config.sendRequestNoOther(player, playerTwo, gameName);
+                    return false;
+                }
+            } else {
+                if (!permissionHandler.has(player, permNodeBase + "play") || !permissionHandler.has(player, permNodeBase + "start")) {
+                    Config.sendRequestNoStart(player, gameName);
+                    return false;
+                } if (!permissionHandler.has(playerTwo, permNodeBase + "play")) {
+                    Config.sendRequestNoOther(player, playerTwo, gameName);
+                    return false;
+                }
             }
+            //
             for (Request entry : requests) {
                 if (entry.getReceiver().equals(playerTwo) || entry.getSender().equals(playerTwo)) {
                     Config.sendRequestAlreadyRequested(player, playerTwo, entry.getType());
@@ -218,5 +235,14 @@ public class ConnectFour extends JavaPlugin {
             }
         }
         return false;
+    }
+    
+    private void setupPermissions() {
+        if (permissionHandler != null)
+            return;        
+        Plugin permissionsPlugin = this.getServer().getPluginManager().getPlugin("Permissions");
+        if (permissionsPlugin == null)
+            return;        
+        permissionHandler = ((Permissions) permissionsPlugin).getHandler();
     }
 }
