@@ -77,7 +77,47 @@ public class ConnectFourGame extends Game {
     }
     
     @Override
+    public void nextTurn(int slot) {
+        int iii = 0;
+        for (ItemStack foo : inventory.getContents()) {
+            if (foo != null) {
+                iii++;
+            }
+        }
+        if (iii == inventory.getSize()) {
+            onTie();
+            return;
+        }
+            
+        
+        if (turn.equals(playerOne))  {
+            if (checkWin(slot, playerOneCoin)) {
+                winner = playerOne;
+                loser = playerTwo;
+                win();
+                return;
+            }
+            turn = playerTwo;
+        } else {
+            if (checkWin(slot, playerTwoCoin)) {
+                winner = playerTwo;
+                loser = playerOne;
+                win();
+                return;
+            }
+            turn = playerOne;
+        }
+    }
+    
+    @Override
+    public void onTie() {
+        setWon(true);
+        Config.sendGameTie(playerOne, playerTwo, name);
+    }
+    
+    @Override
     public boolean checkWin(int slot, ItemStack coin) {
+        
         //vertical check
         List<ItemStack> vertical = new ArrayList<ItemStack>();
         for (int i = slot; i <= slot + 27; i += 9) // no need to check above, there can't be coins there

@@ -17,28 +17,28 @@ import wut.cholo71796.ConnectFour.ConnectFour;
  * @author Cole Erickson
  */
 public class Game {
-    private VirtualDoubleChest chest;
+    protected VirtualDoubleChest chest;
     
-    private Player playerOne;
-    private Player playerTwo;
-    private Player turn;
+    protected Player playerOne;
+    protected Player playerTwo;
+    protected Player turn;
     
     private boolean won = false;
     private boolean playerOneClosed;
     private boolean playerTwoClosed;
     
-    public double stakes;
+    protected double stakes;
     
-    private String name;
+    protected String name;
     
     public Player winner;
     public Player loser;
     
-    public InventoryLargeChest inventory;
-    public ItemStack playerOneCoin;
-    public ItemStack playerTwoCoin;
-    public ItemStack placeholderCoin;
-    public ItemStack winnerCoin;
+    protected InventoryLargeChest inventory;
+    protected ItemStack playerOneCoin;
+    protected ItemStack playerTwoCoin;
+    protected ItemStack placeholderCoin;
+    protected ItemStack winnerCoin;
     
     
     public Game(Player playerOne, Player playerTwo, String name, double stakes) {
@@ -82,25 +82,7 @@ public class Game {
         chest.showToPlayer(player);
     }
     
-    public void nextTurn(int slot) {
-        if (turn.equals(playerOne))  {
-            if (checkWin(slot, playerOneCoin)) {                
-                winner = playerOne;
-                loser = playerTwo;
-                win();
-                return;
-            }
-            turn = playerTwo;
-        } else {
-            if (checkWin(slot, playerTwoCoin)) {                
-                winner = playerTwo;
-                loser = playerOne;
-                win();
-                return;
-            }
-            turn = playerOne;
-        }
-    }
+    public void nextTurn(int slot) {}
     
     public void onClick(Player player, int slot, Inventory inventory) {}
     
@@ -127,6 +109,7 @@ public class Game {
     public void onWin() {}
     public void onStart() {}
     public void onForfeit() {}
+    public void onTie() {}
     
     public Player getPlayerOne() {
         return playerOne;

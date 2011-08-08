@@ -26,6 +26,7 @@ public class Config {
     private static String gameWithStakesWin;
     private static String gameForfeit;
     private static String gameWithStakesForfeit;
+    private static String gameTie;
     private static String closeOnReload;
     private static String acceptError;
     private static String backPrompt;
@@ -63,6 +64,7 @@ public class Config {
             config.setProperty("messages.game.with stakes.win", "&f@winner &6beat &f@loser &6in a game of &f@gameName &6and got &f@stakes&6.");
             config.setProperty("messages.game.forfeit", "&f@loser &6forfeited to &f@winner &6in a game of &f@gameName&6.");
             config.setProperty("messages.game.with stakes.forfeit", "&f@loser &6forfeited to &f@winner &6in a game of &f@gameName &6and lost &f@stakes&6.");
+            config.setProperty("messages.game.tie", "&f@playerOne &6and &f@playerTwo &6tied in a game of &f@gameName&6.");
             config.setProperty("messages.closeOnReload", "&6Game closed due to server stop/reload.");
             config.setProperty("messages.commands.accept.error", "&6No request detected.");
             config.setProperty("messages.commands.accept.success.request receiver", "&6Game against &f@requestSender &6starting...");
@@ -99,6 +101,7 @@ public class Config {
         gameWithStakesWin = convert(config.getString("messages.game.with stakes.win", "&f@winner &6beat &f@loser &6in a game of &f@gameName &6and got &f@stakes&6."));
         gameForfeit = convert(config.getString("messages.game.forfeit", "&f@loser &6forfeited to &f@winner &6in a game of &f@gameName&6."));
         gameWithStakesForfeit = convert(config.getString("messages.game.with stakes.forfeit", "&f@loser &6forfeited to &f@winner &6in a game of &f@gameName &6and lost &f@stakes&6."));
+        gameTie = convert(config.getString("messages.game.tie", "&f@playerOne &6and &f@playerTwo &6tied in a game of &f@gameName&6."));
         closeOnReload = convert(config.getString("messages.closeOnReload", "&6Game closed due to server stop/reload."));
         acceptError = convert(config.getString("messages.commands.accept.error", "&6No request detected."));
         acceptReceiver = convert(config.getString("messages.commands.accept.success.request receiver", "&6Game against &f@requestSender &6starting..."));
@@ -152,7 +155,7 @@ public class Config {
     }
     
     public static void sendGameWithStakesWin(Player player, Player winner, Player loser, String gameType, double stakes) {
-        player.sendMessage(gameWithStakesWin.replaceAll("@winner", ChatColor.stripColor(winner.getDisplayName())).replaceAll("@loser", ChatColor.stripColor(loser.getDisplayName())).replaceAll("@gameName", gameType).replaceAll("@stakes", ConnectFour.Method.format(stakes)));
+        player.sendMessage(gameWithStakesWin.replaceAll("@winner", ChatColor.stripColor(winner.getDisplayName())).replaceAll("@loser", ChatColor.stripColor(loser.getDisplayName())).replaceAll("@gameName", gameType).replaceAll("@stakes", "\\" + ConnectFour.Method.format(stakes)));
     }
     
     public static void sendGameForfeit(Player player, Player winner, Player loser, String gameType) {
@@ -160,7 +163,12 @@ public class Config {
     }
     
     public static void sendGameWithStakesForfeit(Player player, Player winner, Player loser, String gameType, double stakes) {
-        player.sendMessage(gameWithStakesForfeit.replaceAll("@winner", ChatColor.stripColor(winner.getDisplayName())).replaceAll("@loser", ChatColor.stripColor(loser.getDisplayName())).replaceAll("@gameName", gameType).replaceAll("@stakes", ConnectFour.Method.format(stakes)));
+        player.sendMessage(gameWithStakesForfeit.replaceAll("@winner", ChatColor.stripColor(winner.getDisplayName())).replaceAll("@loser", ChatColor.stripColor(loser.getDisplayName())).replaceAll("@gameName", gameType).replaceAll("@stakes", "\\" + ConnectFour.Method.format(stakes))); 
+    }
+    
+    public static void sendGameTie(Player playerOne, Player playerTwo, String gameName) {
+        for (Player msgrecvr : ConnectFour.plugin.getServer().getOnlinePlayers())
+            msgrecvr.sendMessage(gameTie.replaceAll("@playerOne", ChatColor.stripColor(playerOne.getDisplayName())).replaceAll("@playerTwo", ChatColor.stripColor(playerTwo.getDisplayName())).replaceAll("@gameName", gameName));
     }
     
     public static void sendRejectError(Player player) {

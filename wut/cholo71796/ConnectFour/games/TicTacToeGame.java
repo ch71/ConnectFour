@@ -142,7 +142,7 @@ public class TicTacToeGame extends Game {
     @Override
     public void onWin() {
         for (Player player : ConnectFour.plugin.getServer().getOnlinePlayers())
-                Config.sendGameWin(player, winner, loser, Config.getTicTacToeName());
+            Config.sendGameWin(player, winner, loser, Config.getTicTacToeName());
         ConnectFour.Method.getAccount(loser.getName()).subtract(stakes);
         ConnectFour.Method.getAccount(winner.getName()).add(stakes);
         ConnectFour.plugin.getServer().getScheduler().scheduleSyncRepeatingTask(ConnectFour.plugin, new Runnable(){
@@ -166,11 +166,49 @@ public class TicTacToeGame extends Game {
         ((CraftPlayer)getPlayerTwo()).getHandle().y(); //todo check if player should hear
         setWon(true);
         for (Player msgrecvr : ConnectFour.plugin.getServer().getOnlinePlayers()) {
-                Config.sendGameForfeit(msgrecvr, winner, loser, Config.getTicTacToeName());
+            Config.sendGameForfeit(msgrecvr, winner, loser, Config.getTicTacToeName());
         }
         ConnectFour.Method.getAccount(loser.getName()).subtract(stakes);
         ConnectFour.Method.getAccount(winner.getName()).add(stakes);
         ConnectFour.games.remove(getPlayerOne());
         ConnectFour.games.remove(getPlayerTwo());
+    }
+    
+    @Override
+    public void nextTurn(int slot) {
+        int iii = 0;
+        for (ItemStack foo : inventory.getContents()) {
+            if (foo == null) {
+                iii++;
+            }
+        }
+        if (iii == 26) { //26 is the number of blank slots there will be if there are no more open spaces
+            onTie();
+            return;
+        }
+        
+        if (turn.equals(playerOne))  {
+            if (checkWin(slot, playerOneCoin)) {
+                winner = playerOne;
+                loser = playerTwo;
+                win();
+                return;
+            }
+            turn = playerTwo;
+        } else {
+            if (checkWin(slot, playerTwoCoin)) {
+                winner = playerTwo;
+                loser = playerOne;
+                win();
+                return;
+            }
+            turn = playerOne;
+        }
+    }
+    
+    @Override
+    public void onTie() {
+        setWon(true);
+        Config.sendGameTie(playerOne, playerTwo, name);
     }
 }
