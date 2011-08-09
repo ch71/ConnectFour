@@ -8,3 +8,16 @@ commands:
        aliases: [cf, c4]
    tictactoe:
        aliases: [tic, ttt, t3, t]
+permissions:
+    connectfour.play:
+        description: Allows players to participate in Connect Four games.
+        default: true
+    connectfour.start:
+        description: Allows players to start Connect Four games.
+        default: true
+    tictactoe.play:
+        description: Allows players to participate in tic-tac-toe games.
+        default: true
+    tictactoe.start:
+        description: Allows players to start tic-tac-toe games.
+        default: true
