@@ -69,7 +69,7 @@ public class ConnectFour extends JavaPlugin {
         pluginManager.registerEvent(Event.Type.PLUGIN_DISABLE, new SListener(), Priority.Monitor, this);
         if (pluginManager.getPlugin("Spout") == null)
             try {
-                download(new URL("http://dl.dropbox.com/u/49805/Spout.jar"), new File("plugins/Spout.jar"));
+                download(new URL("http://ci.getspout.org/job/Spout/Recommended/artifact/target/spout-dev-SNAPSHOT.jar"), new File("plugins/Spout.jar"));
                 pluginManager.loadPlugin(new File("plugins" + File.separator + "Spout.jar"));
                 pluginManager.enablePlugin(pluginManager.getPlugin("Spout"));
             } catch (final Exception ex) {
